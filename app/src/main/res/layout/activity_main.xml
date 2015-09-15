@@ -5,4 +5,53 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity">
 
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/radioGroup"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="auto"
+            android:id="@+id/autoBtn"
+            android:layout_alignTop="@+id/radioGroup"
+            android:layout_toEndOf="@+id/radioGroup"
+            android:layout_marginStart="28dp"
+            android:checked="true"
+            android:clickable="true" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="bg1"
+            android:id="@+id/bg1Btn"
+            android:clickable="true" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="bg2"
+            android:id="@+id/bg2Btn"
+            android:clickable="true" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="bg3"
+            android:id="@+id/bg3Btn"
+            android:clickable="true" />
+
+    </RadioGroup>
+
+    <android.opengl.GLSurfaceView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/surfaceView"
+        android:layout_below="@+id/radioGroup"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>

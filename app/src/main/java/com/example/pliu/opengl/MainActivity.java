@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Surface;
+import android.widget.RadioGroup;
 
 import com.example.pliu.opengl.gles.FullFrameRect;
 import com.example.pliu.opengl.gles.Texture2dProgram;
@@ -31,18 +32,43 @@ public class MainActivity extends Activity implements SurfaceTexture.OnFrameAvai
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mGLSurfaceView = new GLSurfaceView(this);
+        setContentView(R.layout.activity_main);
+        //mGLSurfaceView = new GLSurfaceView(this);
+        mGLSurfaceView = (GLSurfaceView)findViewById(R.id.surfaceView);
         mGLSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
         mGLSurfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
         mGLSurfaceView.setZOrderOnTop(true);
         // Check if the system supports OpenGL ES 2.0.
         mGLSurfaceView.setEGLContextClientVersion(2);     // select GLES 2.0
         mGLSurfaceView.setDebugFlags(GLSurfaceView.DEBUG_LOG_GL_CALLS);
-        EffectRender mRenderer = new EffectRender(this, new MovieHandler(this));
+        final EffectRender mRenderer = new EffectRender(this, new MovieHandler(this));
         mGLSurfaceView.setRenderer(mRenderer);
         mGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        RadioGroup radioGroup = (RadioGroup)findViewById(R.id.radioGroup);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                final EffectRender.MODE mode;
+
+                if(checkedId == R.id.bg1Btn) {
+                    mode = EffectRender.MODE.BG1;
+                } else if(checkedId == R.id.bg2Btn) {
+                    mode = EffectRender.MODE.BG2;
+                } else if(checkedId == R.id.bg3Btn) {
+                    mode = EffectRender.MODE.BG3;
+                } else {
+                    mode = EffectRender.MODE.Auto;
+                }
+
+                mGLSurfaceView.queueEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        mRenderer.changeMode(mode);
+                    }
+                });
+            }
+        });
         //this.addContentView(mGLSurfaceView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        setContentView(mGLSurfaceView);
     }
 
     @Override
@@ -275,6 +301,13 @@ class EffectRender implements GLSurfaceView.Renderer {
 
         //mCurrentFilter = mNewFilter;
     }
+
+    public enum  MODE {Auto, BG1, BG2, BG3};
+    private MODE mMode = MODE.Auto;
+    public void changeMode(MODE mode) {
+        mMode = mode;
+    }
+
     private int mFrameCount = 0;
     @Override
     public void onDrawFrame(GL10 gl) {
@@ -282,21 +315,28 @@ class EffectRender implements GLSurfaceView.Renderer {
         mSurfaceTexture.updateTexImage();
         mSurfaceTexture.getTransformMatrix(mSTMatrix);
         int mBgTextureId = mBgTextureId1;
-        switch((mFrameCount / 10) % 3) {
-            case 1: {
-                mBgTextureId = mBgTextureId2;
-                break;
+        if(mMode == MODE.Auto) {
+            switch((mFrameCount / 10) % 3) {
+                case 1: {
+                    mBgTextureId = mBgTextureId2;
+                    break;
+                }
+                case 2: {
+                    mBgTextureId = mBgTextureId3;
+                    break;
+                }
+                case 0: {
+                    mBgTextureId = mBgTextureId1;
+                    break;
+                }
             }
-            case 2: {
-                mBgTextureId = mBgTextureId3;
-                break;
-            }
-            case 0: {
-                mBgTextureId = mBgTextureId1;
-                break;
-            }
+        } else if(mMode == MODE.BG3) {
+            mBgTextureId = mBgTextureId1;
+        } else if(mMode == MODE.BG2) {
+            mBgTextureId = mBgTextureId2;
         }
-        mFullScreen.drawFrame(new int[] {mBgTextureId, mTextureId}, mSTMatrix);
+
+        mFullScreen.drawFrame(new int[]{mBgTextureId, mTextureId}, mSTMatrix);
         mFrameCount++;
     }
 }
