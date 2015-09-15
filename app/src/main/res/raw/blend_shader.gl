@@ -1,0 +1,15 @@
+#extension GL_OES_EGL_image_external : require
+precision mediump float;
+varying vec2 vTextureCoord;
+uniform samplerExternalOES sTexture;
+uniform sampler2D sFilterTexture;
+void main() {
+    vec4 tc = texture2D(sTexture, vTextureCoord);
+    vec4 bg = texture2D(sFilterTexture, vTextureCoord);
+
+    if(tc.r == 1.0 && tc.g == 1.0 && tc.b == 1.0) {
+        gl_FragColor = bg;
+    } else {
+        gl_FragColor = tc;
+    }
+}
