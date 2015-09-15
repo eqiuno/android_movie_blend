@@ -34,7 +34,6 @@ public class MainActivity extends Activity implements SurfaceTexture.OnFrameAvai
         mGLSurfaceView = new GLSurfaceView(this);
         mGLSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
         mGLSurfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
-        mGLSurfaceView.setBackgroundResource(R.drawable.bg1);
         mGLSurfaceView.setZOrderOnTop(true);
         // Check if the system supports OpenGL ES 2.0.
         mGLSurfaceView.setEGLContextClientVersion(2);     // select GLES 2.0
@@ -178,7 +177,7 @@ class EffectRender implements GLSurfaceView.Renderer {
     private static final String TAG = MainActivity.TAG;
     private FullFrameRect mFullScreen;
     private final float[] mSTMatrix = new float[16];
-    private int mTextureId, mBgTextureId;
+    private int mTextureId, mBgTextureId1, mBgTextureId2, mBgTextureId3;
     MainActivity.MovieHandler mHandler;
     private SurfaceTexture mSurfaceTexture;
     private Context mContext;
@@ -195,8 +194,9 @@ class EffectRender implements GLSurfaceView.Renderer {
                 new Texture2dProgram(Texture2dProgram.ProgramType.TEXTURE_EXT_TRANSPARENT));
 
         mTextureId = mFullScreen.createTextureObject();
-        mBgTextureId = mFullScreen.loadTexture(mContext, R.drawable.bg1);
-
+        mBgTextureId1 = mFullScreen.loadTexture(mContext, R.drawable.bg1);
+        mBgTextureId2 = mFullScreen.loadTexture(mContext, R.drawable.bg2);
+        mBgTextureId3 = mFullScreen.loadTexture(mContext, R.drawable.bg3);
         // Create a SurfaceTexture, with an external texture, in this EGL context.  We don't
         // have a Looper in this thread -- GLSurfaceView doesn't create one -- so the frame
         // available messages will arrive on the main thread.
@@ -275,12 +275,28 @@ class EffectRender implements GLSurfaceView.Renderer {
 
         //mCurrentFilter = mNewFilter;
     }
-
+    private int mFrameCount = 0;
     @Override
     public void onDrawFrame(GL10 gl) {
         Log.d(TAG, "onDrawFrame tex=" + mTextureId);
         mSurfaceTexture.updateTexImage();
         mSurfaceTexture.getTransformMatrix(mSTMatrix);
+        int mBgTextureId = mBgTextureId1;
+        switch((mFrameCount / 10) % 3) {
+            case 1: {
+                mBgTextureId = mBgTextureId2;
+                break;
+            }
+            case 2: {
+                mBgTextureId = mBgTextureId3;
+                break;
+            }
+            case 0: {
+                mBgTextureId = mBgTextureId1;
+                break;
+            }
+        }
         mFullScreen.drawFrame(new int[] {mBgTextureId, mTextureId}, mSTMatrix);
+        mFrameCount++;
     }
 }
